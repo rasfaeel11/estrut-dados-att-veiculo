@@ -1,56 +1,85 @@
+#include "veiculo.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
-typedef struct Veiculo {
-  char placa[8];
-  char modelo[50];
-  int ano;
-  float preco;
-} Veiculo;
-
-typedef struct Armazem {
-  Veiculo *veiculos;
-  size_t count; // tipo especial para tamanhos de arrays
-  size_t capacidade;
-} Armazem;
 
 int main(void) {
   Armazem meuArmazem = {NULL, 0, 0};
+  int opcao;
 
-  for (int x = 0; x < 10; ++x) {
-    if (meuArmazem.count >= meuArmazem.capacidade) {
-      if (meuArmazem.capacidade == 0)
-        meuArmazem.capacidade = 256;
-      else
-        meuArmazem.capacidade *= 2;
+  do {
+    printf("\n--- MENU DO ARMAZEM ---\n");
+    printf("1. Adicionar Veiculo\n");
+    printf("2. Listar Veiculos\n");
+    printf("3. Buscar por Vaga (Indice)\n");
+    printf("4. Remover Veiculo\n");
+    printf("0. Sair\n");
+    printf("Escolha: ");
+    scanf("%d", &opcao);
 
-      meuArmazem.veiculos =
-          realloc(meuArmazem.veiculos,
-                  meuArmazem.capacidade * sizeof(*meuArmazem.veiculos));
-      if (meuArmazem.veiculos == NULL) {
-        printf("Erro de memoria\n");
-        exit(1);
-      }
+    switch (opcao) {
+    case 1: {
+      char placa[8], modelo[50];
+      int ano;
+      float preco;
+
+      printf("Digite a Placa: ");
+      scanf("%s", placa);
+
+      printf("Digite o Modelo: ");
+      scanf("%s", modelo);
+
+      printf("Digite o Ano: ");
+      scanf("%d", &ano);
+
+      printf("Digite o Preco: ");
+      scanf("%f", &preco);
+
+      adicionarVeiculo(&meuArmazem, placa, modelo, ano, preco);
+      printf("Adicionado com sucesso!\n");
+      break;
     }
 
-    sprintf(meuArmazem.veiculos[meuArmazem.count].placa, "ABC000%d",
-            x); // impossivel em C calcular numero com string, entao tem que
-                // apenas adicionar
-    strcpy(meuArmazem.veiculos[meuArmazem.count].modelo,
-           "Honda Civic"); // tive que pesquisar, nao pode usar = para comparar
-                           // string, essa funcao copia
-    meuArmazem.veiculos[meuArmazem.count].ano = 2020 + x;
-    meuArmazem.veiculos[meuArmazem.count].preco = 90000.0;
+    case 2: {
+      printf("\n--- SEUS VEICULOS ---\n");
+      if (meuArmazem.count == 0) {
+        printf("O estacionamento esta vazio.\n");
+      } else {
+        for (size_t i = 0; i < meuArmazem.count; i++) {
+          printf(
+              "Vaga %zu | Placa: %s | Modelo: %s | Ano: %d | Preco: R$ %.2f\n",
+              i, meuArmazem.veiculos[i].placa, meuArmazem.veiculos[i].modelo,
+              meuArmazem.veiculos[i].ano, meuArmazem.veiculos[i].preco);
+        }
+      }
+      break;
+    }
 
-    meuArmazem.count++;
-  }
+    case 3: {
+      int indice;
+      printf("Digite o numero da vaga para buscar: ");
+      scanf("%d", &indice);
 
-  for (size_t i = 0; i < meuArmazem.count; i++) {
-    printf("Vaga %zu | Placa: %s | Modelo: %s | Ano: %d | Preco: R$ %.2f\n", i,
-           meuArmazem.veiculos[i].placa, meuArmazem.veiculos[i].modelo,
-           meuArmazem.veiculos[i].ano, meuArmazem.veiculos[i].preco);
-  }
+      buscarVeiculoPorIndice(&meuArmazem, indice);
+      break;
+    }
+
+    case 4: {
+      int indice;
+      printf("Digite o numero da vaga para remover o veiculo: ");
+      scanf("%d", &indice);
+
+      removerVeiculo(&meuArmazem, indice);
+      break;
+    }
+
+    case 0:
+      printf("Saindo...\n");
+      break;
+
+    default:
+      printf("Opcao invalida!\n");
+    }
+  } while (opcao != 0);
 
   // esse free aqui e so pra liberar memoria
   free(meuArmazem.veiculos);
